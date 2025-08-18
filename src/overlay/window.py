@@ -1,6 +1,8 @@
 import os
 import ctypes
+
 from PyQt5 import QtCore, QtWidgets, QtGui, QtMultimedia, QtMultimediaWidgets
+from .settings import SettingsUI, load_settings
 
 GWL_EXSTYLE      = -20
 WS_EX_LAYERED    = 0x00080000
@@ -16,6 +18,9 @@ class OverlayWindow(QtWidgets.QMainWindow):
     sig_minus   = QtCore.pyqtSignal()
     sig_zoom_in  = QtCore.pyqtSignal()
     sig_zoom_out = QtCore.pyqtSignal()
+    
+    sig_settings = QtCore.pyqtSignal()
+    
     sig_quit    = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -71,14 +76,15 @@ class OverlayWindow(QtWidgets.QMainWindow):
 
     def _connect_signals(self):
         self.sig_open .connect(self.open_file)
-        self.sig_up   .connect(lambda: self.move_by(   0, -10))
-        self.sig_down .connect(lambda: self.move_by(   0,  10))
-        self.sig_left .connect(lambda: self.move_by(-10,   0))
-        self.sig_right.connect(lambda: self.move_by( 10,   0))
-        self.sig_plus .connect(lambda: self.change_opacity( 0.05))
-        self.sig_minus.connect(lambda: self.change_opacity(-0.05))
-        self.sig_zoom_in .connect(lambda: self.change_size(10))
-        self.sig_zoom_out.connect(lambda: self.change_size(-10))
+        self.sig_up   .connect(lambda: self.move_by(   0, -load_settings()["move"]))
+        self.sig_down .connect(lambda: self.move_by(   0,  load_settings()["move"]))
+        self.sig_left .connect(lambda: self.move_by(-load_settings()["move"],    0))
+        self.sig_right.connect(lambda: self.move_by( load_settings()["move"],    0))
+        self.sig_plus .connect(lambda: self.change_opacity( load_settings()["opacity"]))
+        self.sig_minus.connect(lambda: self.change_opacity(-load_settings()["opacity"]))
+        self.sig_zoom_in .connect(lambda: self.change_size( load_settings()["zoom"]))
+        self.sig_zoom_out.connect(lambda: self.change_size(-load_settings()["zoom"]))
+        self.sig_settings.connect(self.open_settings)
         self.sig_quit .connect(self.close)
 
     def open_file(self):
@@ -110,21 +116,32 @@ class OverlayWindow(QtWidgets.QMainWindow):
 
             return
 
-        # se arriva qui, non è un'immagine gestita (eventuale gestione video)
         print("Invalid file type for video playback.")
         # url = QtCore.QUrl.fromLocalFile(path)
         # self.player.setMedia(QtMultimedia.QMediaContent(url))
         # self.container.setCurrentWidget(self.video_widget)
         # self.player.play()
 
+    def open_settings(self):
+        try:
+            dialog = SettingsUI(self)
+            dialog.exec_()
+        except Exception as e:
+            print("Error opening settings:", e)
+            QtWidgets.QMessageBox.critical(
+                self, "Error", f"Failed to open settings: {e}"
+            )
+        
     def move_by(self, dx, dy):
         g = self.frameGeometry()
         g.moveTopLeft(g.topLeft() + QtCore.QPoint(dx, dy))
         self.setGeometry(g)
+        print(f"Moved by: {dx}px h, {dy}px v")
 
     def change_opacity(self, delta):
         self.opacity = max(0, min(1.0, self.opacity + delta))
         self.setWindowOpacity(self.opacity)
+        print(f"New opacity: {self.opacity}")
         
     def _update_pixmap(self):
         if not self._orig_pixmap:
@@ -151,5 +168,7 @@ class OverlayWindow(QtWidgets.QMainWindow):
         new_geom = self.frameGeometry()
         new_geom.moveCenter(center)
         self.setGeometry(new_geom)
+        
+        print(f"New size: {self.w}x{self.h}")
 
         self._update_pixmap()
