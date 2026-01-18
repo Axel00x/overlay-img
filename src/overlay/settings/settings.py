@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-__version__ = "1.1b1"
+__version__ = "1.1"
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
@@ -17,6 +17,17 @@ DEFAULT_SETTINGS = {
     "zoom": 10,  # Default zoom value in pixels
     "opacity": 0.05,  # Default opacity change (1.0 = fully opaque)
     "version": __version__,
+    "up": '<alt>+<up>',
+    "down": '<alt>+<down>',
+    "left": '<alt>+<left>',
+    "right": '<alt>+<right>',
+    "open": '<ctrl>+<alt>+o',
+    "quit": '<ctrl>+<alt>+q',
+    "op_up": '<alt>++',
+    "op_down": '<alt>+-',
+    "in": '<alt>+<shift>++',
+    "out": '<alt>+<shift>+-',
+    "settings": '<ctrl>+<alt>+s',
 }
 
 def load_settings() -> dict:
@@ -41,12 +52,34 @@ def load_settings() -> dict:
             "zoom": data.get("zoom", DEFAULT_SETTINGS["zoom"]),
             "opacity": data.get("opacity", DEFAULT_SETTINGS["opacity"]),
             "version": data.get("version", __version__),
+            "up": data.get("up", DEFAULT_SETTINGS["up"]),
+            "down": data.get("down", DEFAULT_SETTINGS["down"]),
+            "left": data.get("left", DEFAULT_SETTINGS["left"]),
+            "right": data.get("right", DEFAULT_SETTINGS["right"]),
+            "open": data.get("open", DEFAULT_SETTINGS["open"]),
+            "quit": data.get("quit", DEFAULT_SETTINGS["quit"]),
+            "op_up": data.get("op_up", DEFAULT_SETTINGS["op_up"]),
+            "op_down": data.get("op_down", DEFAULT_SETTINGS["op_down"]),
+            "in": data.get("in", DEFAULT_SETTINGS["in"]),
+            "out": data.get("out", DEFAULT_SETTINGS["out"]),
+            "settings": data.get("settings", DEFAULT_SETTINGS["settings"]),
         }
 
 def save_settings(
     move: int = None,
     zoom: int = None,
     opacity: float = None,
+    up: str = None,
+    down: str = None,
+    left: str = None,
+    right: str = None,
+    open_: str = None,
+    quit: str = None,
+    op_up: str = None,
+    op_down: str = None,
+    in_: str = None,
+    out: str = None,
+    settings_: str = None
     ):
     
     settings = load_settings()
@@ -56,33 +89,49 @@ def save_settings(
         settings["zoom"] = zoom
     if opacity is not None:
         settings["opacity"] = opacity
+    if up is not None:
+        settings["up"] = up
+    if down is not None:
+        settings["down"] = down
+    if left is not None:
+        settings["left"] = left
+    if right is not None:
+        settings["right"] = right
+    if open_ is not None:
+        settings["open"] = open_
+    if quit is not None:
+        settings["quit"] = quit
+    if op_up is not None:
+        settings["op_up"] = op_up
+    if op_down is not None:
+        settings["op_down"] = op_down
+    if in_ is not None:
+        settings["in"] = in_
+    if out is not None:
+        settings["out"] = out
+    if settings_ is not None:
+        settings["settings"] = settings_
         
     settings["version"] = __version__  # Ensure version is always up-to-date
     
     settings["move"] = int(settings["move"])  # Ensure move is an integer
     settings["zoom"] = int(settings["zoom"])  # Ensure zoom is an integer
     settings["opacity"] = float(settings["opacity"])  # Ensure opacity is a float
-
+    settings["up"] = str(settings["up"])
+    settings["down"] = str(settings["down"])
+    settings["left"] = str(settings["left"])
+    settings["right"] = str(settings["right"])
+    settings["open"] = str(settings["open"])
+    settings["quit"] = str(settings["quit"])
+    settings["in"] = str(settings["in"])
+    settings["out"] = str(settings["out"])
+    settings["settings"] = str(settings["settings"])
+    
+    if SETTINGS_PATH is None:
+        print("Hello World")
+    
     with open(SETTINGS_PATH, 'w', encoding='utf-8') as f:
         json.dump(settings, f, indent=4)
-
-def get_version() -> str:
+        
+def get_version():
     return load_settings()["version"]
-
-def get_move_val() -> int:
-    return load_settings()["move"]
-
-def set_move_val(value: int):
-    save_settings(move=value)
-
-def get_zoom_val() -> int:
-    return load_settings()["zoom"]
-
-def set_zoom_val(value: int):
-    save_settings(zoom=value)
-    
-def get_opacity_val() -> float:
-    return load_settings()["opacity"]
-
-def set_opacity_val(value: float):
-    save_settings(opacity=value)

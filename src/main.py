@@ -9,17 +9,17 @@ def main():
     overlay = OverlayWindow()
 
     hotkeys = {
-        '<ctrl>+<alt>+o': overlay.sig_open.emit,
-        '<alt>+<up>'    : overlay.sig_up.emit,
-        '<alt>+<down>'  : overlay.sig_down.emit,
-        '<alt>+<left>'  : overlay.sig_left.emit,
-        '<alt>+<right>' : overlay.sig_right.emit,
-        '<alt>++'       : lambda: overlay.sig_plus.emit()  if not shift_pressed() else None,
-        '<alt>+-'       : lambda: overlay.sig_minus.emit() if not shift_pressed() else None,
-        '<alt>+<shift>++' : overlay.sig_zoom_in.emit,
-        '<alt>+<shift>+-'   : overlay.sig_zoom_out.emit,
-        '<ctrl>+<alt>+s': overlay.sig_settings.emit,
-        '<ctrl>+<alt>+q': overlay.sig_quit.emit,
+        load_settings()["open"]: overlay.sig_open.emit,
+        load_settings()["up"]: overlay.sig_up.emit,
+        load_settings()["down"]: overlay.sig_down.emit,
+        load_settings()["left"]: overlay.sig_left.emit,
+        load_settings()["right"]: overlay.sig_right.emit,
+        load_settings()["in"]: lambda: overlay.sig_plus.emit()  if not shift_pressed() else None,
+        load_settings()["out"]: lambda: overlay.sig_minus.emit() if not shift_pressed() else None,
+        load_settings()["in"]: overlay.sig_zoom_in.emit,
+        load_settings()["out"]: overlay.sig_zoom_out.emit,
+        load_settings()["settings"]: overlay.sig_settings.emit,
+        load_settings()["quit"]: overlay.sig_quit.emit,
     }
     listener = keyboard.GlobalHotKeys(hotkeys)
     listener.start()

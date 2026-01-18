@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from .settings import get_version, save_settings
+from .keybinds_ui import KeybindsUI
 
 class SettingsUI(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -46,8 +47,12 @@ class SettingsUI(QtWidgets.QDialog):
         self.save_button = QtWidgets.QPushButton("Save", self)
         self.save_button.clicked.connect(self._save_settings)
         
+        self.keybinds_button = QtWidgets.QPushButton("Keybinds", self)
+        self.keybinds_button.clicked.connect(self._open_keybinds_ui)
+        
         h4_layout = QtWidgets.QHBoxLayout()
         h4_layout.addWidget(self.save_button)
+        h4_layout.addWidget(self.keybinds_button)
         layouts.append(h4_layout)
         
         # Layout
@@ -67,3 +72,13 @@ class SettingsUI(QtWidgets.QDialog):
         )
         
         self.accept()
+    
+    def _open_keybinds_ui(self):
+        try:
+            dialog = KeybindsUI(self)
+            dialog.exec_()
+        except Exception as e:
+            print("Error opening settings:", e)
+            QtWidgets.QMessageBox.critical(
+                self, "Error", f"Failed to open settings: {e}"
+            )
